@@ -1,3 +1,5 @@
+// NetCoreBlazor-main-remake.Client/Program.cs
+
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using NetCoreBlazor_main_remake.Client;

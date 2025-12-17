@@ -1,16 +1,15 @@
-
-
 @inherits LayoutComponentBase
 
 <div class="layout">
     <nav class="sidebar">
         <h3>Panel Culinario</h3>
         <ul>
-            <li><a href="/home">Home</a></li>
-            <li><a href="/usuarios">Usuarios</a></li>
-            <li><a href="/recetas">Recetas</a></li>
-            <li><a href="/ingredientes">Ingredientes</a></li>
+            <li><NavLink href="/home" class="nav-link" activeclassname="active">Home</NavLink></li>
+            <li><NavLink href="/usuarios" class="nav-link" activeclassname="active">Usuarios</NavLink></li>
+            <li><NavLink href="/recetas" class="nav-link" activeclassname="active">Recetas</NavLink></li>
+            <li><NavLink href="/ingredientes" class="nav-link" activeclassname="active">Ingredientes</NavLink></li>
         </ul>
+
     </nav>
     <main class="content">
         @Body
