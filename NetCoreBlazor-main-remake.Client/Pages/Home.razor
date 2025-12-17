@@ -1,0 +1,55 @@
+﻿
+@page "/home"
+@inject NetCoreBlazor_main_remake.Client.Services.AuthService AuthService
+@inject NavigationManager Navigation
+
+<h1>Bienvenido</h1>
+
+<div class="search-bar">
+    <input placeholder="Buscar..." />
+    <button>🔍</button>
+</div>
+
+<div class="cards">
+    <div class="card"><img src="images/platillo1.jpg" alt="Platillo 1" /></div>
+    <div class="card"><img src="images/platillo2.jpg" alt="Platillo 2" /></div>
+    <div class="card"><img src="images/platillo3.jpg" alt="Platillo 3" /></div>
+</div>
+
+<style>
+h1 {
+    text-align: center;
+}
+
+.search-bar {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    gap: 10px;
+}
+
+.search-bar input {
+    padding: 8px;
+    width: 300px;
+}
+
+.cards {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.card {
+    width: 200px;
+    height: 150px;
+    overflow: hidden;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+</style>

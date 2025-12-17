@@ -1,0 +1,112 @@
+@page "/register"
+@inject NetCoreBlazor_main_remake.Client.Services.AuthService AuthService
+@inject IJSRuntime JS
+@inject NavigationManager Navigation
+
+<h2>Registrarse</h2>
+
+@if (isLoading)
+{
+    <p>Cargando...</p>
+}
+
+<div class="register-form">
+    <input placeholder="Nombre" @bind="name" />
+    <input placeholder="Apellido" @bind="lastname" />
+    <input placeholder="Correo" @bind="email" />
+    <input placeholder="Contraseña" type="password" @bind="password" />
+    <button @onclick="HandleRegister">Registrar</button>
+    <p>¿Ya tienes cuenta? <a href="/">Inicia sesión</a></p>
+</div>
+
+@code {
+    private string name = string.Empty;
+    private string lastname = string.Empty;
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private bool isLoading = false;
+
+    private async Task HandleRegister()
+    {
+        isLoading = true;
+        Console.WriteLine("Intentando registro con: " + email);
+
+        var result = await AuthService.RegisterAsync(new Models.UsuarioRegister
+        {
+            Name = name,
+            Lastname = lastname,
+            Email = email,
+            Password = password
+        });
+
+        isLoading = false;
+
+        if (result == "ok")
+        {
+            Console.WriteLine("Registro exitoso");
+            Navigation.NavigateTo("/");
+        }
+        else
+        {
+            Console.WriteLine("Registro fallido");
+            await JS.InvokeVoidAsync("alert", "Error al registrarse");
+        }
+    }
+}
+
+<style>
+.register-form {
+    max-width: 400px;
+    margin: 50px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+input {
+    padding: 10px;
+    font-size: 16px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    transition: border 0.2s;
+}
+
+input:focus {
+    border-color: #28a745;
+}
+
+button {
+    padding: 10px;
+    font-size: 16px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+button:hover {
+    background-color: #218838;
+}
+
+p {
+    text-align: center;
+    margin-top: 10px;
+}
+
+p a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+p a:hover {
+    text-decoration: underline;
+}
+</style>
