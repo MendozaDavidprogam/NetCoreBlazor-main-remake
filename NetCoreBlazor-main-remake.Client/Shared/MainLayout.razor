@@ -1,7 +1,9 @@
 @inherits LayoutComponentBase
+@inject NetCoreBlazor_main_remake.Client.Services.AuthService AuthService
+@inject NavigationManager Navigation
 
 <div class="layout">
-    <nav class="sidebar">
+    <nav class="sidebar" style="@(!isLoggedIn ? "display:none" : "")">
         <h3>Panel Culinario</h3>
         <ul>
             <li><NavLink href="/home" class="nav-link" activeclassname="active">Home</NavLink></li>
@@ -9,50 +11,36 @@
             <li><NavLink href="/recetas" class="nav-link" activeclassname="active">Recetas</NavLink></li>
             <li><NavLink href="/ingredientes" class="nav-link" activeclassname="active">Ingredientes</NavLink></li>
         </ul>
-
+        <button @onclick="Logout" class="logout-button">Cerrar sesión</button>
     </nav>
     <main class="content">
         @Body
     </main>
 </div>
 
-<style>
-.layout {
-    display: flex;
-    height: 100vh;
-    font-family: Arial, sans-serif;
-}
+@code {
+    private bool isLoggedIn = false;
 
-.sidebar {
-    width: 220px;
-    background-color: #f5f5f5;
-    padding: 20px;
-}
+    protected override async Task OnInitializedAsync()
+    {
+        isLoggedIn = await AuthService.IsLoggedInAsync();
+        AuthService.OnChange += AuthStateChanged;
+    }
 
-.sidebar h3 {
-    margin-bottom: 20px;
-    text-align: center;
-}
+    private async Task AuthStateChanged()
+    {
+        isLoggedIn = await AuthService.IsLoggedInAsync();
+        await InvokeAsync(StateHasChanged);
+    }
 
-.sidebar ul {
-    list-style: none;
-    padding: 0;
-}
+    private async Task Logout()
+    {
+        await AuthService.LogoutAsync();
+        Navigation.NavigateTo("/");
+    }
 
-.sidebar ul li {
-    margin-bottom: 15px;
+    public void Dispose()
+    {
+        AuthService.OnChange -= AuthStateChanged;
+    }
 }
-
-.sidebar ul li a {
-    text-decoration: none;
-    color: #333;
-    font-weight: 500;
-}
-
-.content {
-    flex: 1;
-    padding: 30px;
-    overflow-y: auto;
-    background-color: #fff;
-}
-</style>

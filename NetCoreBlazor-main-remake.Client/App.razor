@@ -1,7 +1,16 @@
-﻿<Router AppAssembly="@typeof(App).Assembly">
+﻿@inject NetCoreBlazor_main_remake.Client.Services.AuthService AuthService
+@inject NavigationManager Navigation
+
+<Router AppAssembly="@typeof(App).Assembly">
     <Found Context="routeData">
-        <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
-        <FocusOnNavigate RouteData="@routeData" Selector="h1" />
+        @if (!isLoading)
+        {
+            <RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+        }
+        else
+        {
+            <p style="text-align:center;margin-top:50px;">Cargando...</p>
+        }
     </Found>
     <NotFound>
         <LayoutView Layout="@typeof(MainLayout)">
@@ -9,3 +18,18 @@
         </LayoutView>
     </NotFound>
 </Router>
+
+@code {
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        var loggedIn = await AuthService.IsLoggedInAsync();
+        if (!loggedIn)
+        {
+            Navigation.NavigateTo("/");
+        }
+        isLoading = false;
+    }
+}

@@ -1,112 +1,74 @@
 @page "/register"
 @inject NetCoreBlazor_main_remake.Client.Services.AuthService AuthService
-@inject IJSRuntime JS
 @inject NavigationManager Navigation
+@using NetCoreBlazor_main_remake.Client.Models
 
-<h2>Registrarse</h2>
+<h2 style="text-align:center; margin-bottom:20px;">Registrarse</h2>
 
 @if (isLoading)
 {
-    <p>Cargando...</p>
+    <p style="text-align:center;">Cargando...</p>
 }
 
-<div class="register-form">
-    <input placeholder="Nombre" @bind="name" />
-    <input placeholder="Apellido" @bind="lastname" />
-    <input placeholder="Correo" @bind="email" />
-    <input placeholder="Contraseña" type="password" @bind="password" />
-    <button @onclick="HandleRegister">Registrar</button>
-    <p>¿Ya tienes cuenta? <a href="/">Inicia sesión</a></p>
-</div>
+<EditForm Model="@usuarioRegister" OnValidSubmit="HandleRegister">
+    <DataAnnotationsValidator />
+
+    <div class="form-wrapper">
+        <div class="form-container">
+            <div>
+                <input placeholder="Nombre" @bind="usuarioRegister.Name" class="form-input"/>
+                <ValidationMessage For="@(() => usuarioRegister.Name)" />
+            </div>
+
+            <div>
+                <input placeholder="Apellido" @bind="usuarioRegister.Lastname" class="form-input"/>
+                <ValidationMessage For="@(() => usuarioRegister.Lastname)" />
+            </div>
+
+            <div>
+                <input placeholder="Correo" @bind="usuarioRegister.Email" class="form-input"/>
+                <ValidationMessage For="@(() => usuarioRegister.Email)" />
+            </div>
+
+            <div>
+                <input placeholder="Contraseña" type="password" @bind="usuarioRegister.Password" class="form-input"/>
+                <ValidationMessage For="@(() => usuarioRegister.Password)" />
+            </div>
+
+            <button type="submit" class="form-button">Registrar</button>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="modal">@errorMessage</div>
+            }
+
+            <p class="form-link">
+                ¿Ya tienes cuenta? <a href="/">Inicia sesión</a>
+            </p>
+        </div>
+    </div>
+</EditForm>
 
 @code {
-    private string name = string.Empty;
-    private string lastname = string.Empty;
-    private string email = string.Empty;
-    private string password = string.Empty;
+    private UsuarioRegister usuarioRegister = new();
     private bool isLoading = false;
+    private string errorMessage = string.Empty;
 
     private async Task HandleRegister()
     {
+        errorMessage = string.Empty;
         isLoading = true;
-        Console.WriteLine("Intentando registro con: " + email);
 
-        var result = await AuthService.RegisterAsync(new Models.UsuarioRegister
-        {
-            Name = name,
-            Lastname = lastname,
-            Email = email,
-            Password = password
-        });
-
+        var result = await AuthService.RegisterAsync(usuarioRegister);
         isLoading = false;
 
         if (result == "ok")
         {
-            Console.WriteLine("Registro exitoso");
             Navigation.NavigateTo("/");
         }
         else
         {
-            Console.WriteLine("Registro fallido");
-            await JS.InvokeVoidAsync("alert", "Error al registrarse");
+            errorMessage = "Error al registrarse";
         }
     }
 }
-
-<style>
-.register-form {
-    max-width: 400px;
-    margin: 50px auto;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    padding: 20px;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-input {
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    outline: none;
-    transition: border 0.2s;
-}
-
-input:focus {
-    border-color: #007bff;
-}
-
-button {
-    padding: 10px;
-    font-size: 16px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-button:hover {
-    background-color: #007bff;
-}
-
-p {
-    text-align: center;
-    margin-top: 10px;
-}
-
-p a {
-    color: #007bff;
-    text-decoration: none;
-}
-
-p a:hover {
-    text-decoration: underline;
-}
-</style>

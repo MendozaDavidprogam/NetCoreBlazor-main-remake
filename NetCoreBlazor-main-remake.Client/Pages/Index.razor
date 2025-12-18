@@ -1,113 +1,64 @@
 @page "/"
 @inject NetCoreBlazor_main_remake.Client.Services.AuthService AuthService
-@inject IJSRuntime JS
 @inject NavigationManager Navigation
+@using NetCoreBlazor_main_remake.Client.Models
 
-<h2>Iniciar sesión</h2>
+<h2 style="text-align:center; margin-bottom:20px;">Iniciar sesión</h2>
 
 @if (isLoading)
 {
-    <p>Cargando...</p>
+    <p style="text-align:center;">Cargando...</p>
 }
 
-<div class="login-form">
-    <input placeholder="Correo" @bind="email" />
-    <input placeholder="Contraseña" type="password" @bind="password" />
-    <button @onclick="HandleLogin">Aceptar</button>
-    <p>¿No tienes cuenta? <a href="/register">Regístrate</a></p>
-</div>
+<EditForm Model="@usuarioLogin" OnValidSubmit="HandleLogin">
+    <DataAnnotationsValidator />
+
+    <div class="form-wrapper">
+        <div class="form-container">
+            <div>
+                <input placeholder="Correo" @bind="usuarioLogin.Email" class="form-input"/>
+                <ValidationMessage For="@(() => usuarioLogin.Email)" />
+            </div>
+
+            <div>
+                <input placeholder="Contraseña" type="password" @bind="usuarioLogin.Password" class="form-input"/>
+                <ValidationMessage For="@(() => usuarioLogin.Password)" />
+            </div>
+
+            <button type="submit" class="form-button">Aceptar</button>
+
+            @if (!string.IsNullOrEmpty(errorMessage))
+            {
+                <div class="modal">@errorMessage</div>
+            }
+
+            <p class="form-link">
+                ¿No tienes cuenta? <a href="/register">Regístrate</a>
+            </p>
+        </div>
+    </div>
+</EditForm>
 
 @code {
-    private string email = string.Empty;
-    private string password = string.Empty;
+    private UsuarioLogin usuarioLogin = new();
     private bool isLoading = false;
+    private string errorMessage = string.Empty;
 
     private async Task HandleLogin()
     {
+        errorMessage = string.Empty;
         isLoading = true;
-        Console.WriteLine("Intentando login con: " + email);
 
-        var token = await AuthService.LoginAsync(new Models.UsuarioLogin
-        {
-            Email = email,
-            Password = password
-        });
-
+        var token = await AuthService.LoginAsync(usuarioLogin);
         isLoading = false;
 
         if (!string.IsNullOrEmpty(token))
         {
-            Console.WriteLine("Login exitoso, token recibido: " + token);
             Navigation.NavigateTo("/home");
         }
         else
         {
-            Console.WriteLine("Login fallido");
-            await JS.InvokeVoidAsync("alert", "Credenciales incorrectas");
+            errorMessage = "Credenciales incorrectas o error del servidor";
         }
     }
 }
-
-<style>
-/* Contenedor del formulario */
-.login-form {
-    max-width: 350px;
-    margin: 80px auto;
-    padding: 30px 25px;
-    background: #ffffff;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-
-/* Inputs */
-.login-form input {
-    padding: 12px 15px;
-    font-size: 14px;
-    border-radius: 8px;
-    border: 1px solid #ccc;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-}
-
-.login-form input:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0,123,255,0.2);
-}
-
-/* Botón */
-.login-form button {
-    padding: 12px;
-    font-size: 16px;
-    border: none;
-    border-radius: 8px;
-    background-color: #007bff;
-    color: #fff;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.login-form button:hover {
-    background-color: #0056b3;
-}
-
-/* Enlaces */
-.login-form a {
-    color: #007bff;
-    text-decoration: none;
-}
-
-.login-form a:hover {
-    text-decoration: underline;
-}
-
-/* Mensajes de carga */
-p {
-    text-align: center;
-    font-size: 14px;
-    color: #555;
-}
-</style>
