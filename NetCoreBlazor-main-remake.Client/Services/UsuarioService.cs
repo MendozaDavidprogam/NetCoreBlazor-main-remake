@@ -31,7 +31,7 @@ namespace NetCoreBlazor_main_remake.Client.Services
 
         public async Task<UsuarioDTO?> GetUsuarioAsync(int id)
         {
-            if (id <= 0) return null; // evita llamadas con id=0
+            if (id <= 0) return null;
 
             await AddAuthorizationHeader();
             var response = await _http.GetAsync($"api/Usuario/{id}");
