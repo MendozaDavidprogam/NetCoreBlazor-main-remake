@@ -104,13 +104,25 @@ namespace NetCoreBlazor_main_remake.Client.Services
 
         public async Task<string?> GetTokenAsync()
         {
-            return await _js.InvokeAsync<string>("localStorage.getItem", TOKEN_KEY);
+            var token = await _js.InvokeAsync<string>("localStorage.getItem", TOKEN_KEY);
+
+            if (!string.IsNullOrEmpty(token) && IsTokenExpired(token))
+            {
+                await LogoutAsync();
+                return null;
+            }
+
+            return token;
         }
 
         public async Task<int?> GetUserIdAsync()
         {
+            var token = await GetTokenAsync();
+            if (string.IsNullOrEmpty(token)) return null;
+
             var id = await _js.InvokeAsync<string>("localStorage.getItem", USER_ID_KEY);
             if (int.TryParse(id, out var userId)) return userId;
+
             return null;
         }
 
@@ -118,6 +130,43 @@ namespace NetCoreBlazor_main_remake.Client.Services
         {
             var token = await GetTokenAsync();
             return !string.IsNullOrEmpty(token);
+        }
+
+        // ------------------------------
+        // Verifica si el JWT ha expirado
+        // ------------------------------
+        private bool IsTokenExpired(string token)
+        {
+            try
+            {
+                var parts = token.Split('.');
+                if (parts.Length != 3) return true;
+
+                var payload = parts[1];
+                payload = payload.Replace('-', '+').Replace('_', '/');
+                switch (payload.Length % 4)
+                {
+                    case 2: payload += "=="; break;
+                    case 3: payload += "="; break;
+                }
+
+                var bytes = Convert.FromBase64String(payload);
+                var json = System.Text.Encoding.UTF8.GetString(bytes);
+                using var doc = JsonDocument.Parse(json);
+
+                if (doc.RootElement.TryGetProperty("exp", out var expProp))
+                {
+                    var expUnix = expProp.GetInt64();
+                    var expDate = DateTimeOffset.FromUnixTimeSeconds(expUnix).UtcDateTime;
+                    return expDate < DateTime.UtcNow;
+                }
+            }
+            catch
+            {
+                return true;
+            }
+
+            return true;
         }
     }
 }
