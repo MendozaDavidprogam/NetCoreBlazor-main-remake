@@ -12,6 +12,7 @@ namespace NetCoreBlazor_main_remake.Client.Services
         private readonly HttpClient _http;
         private readonly IJSRuntime _js;
         private const string TOKEN_KEY = "jwt_token";
+        private const string USER_ID_KEY = "user_id";
 
         public event Func<Task>? OnChange;
 
@@ -22,31 +23,6 @@ namespace NetCoreBlazor_main_remake.Client.Services
             _http = http;
             _js = js;
         }
-
-        /*public async Task<string?> LoginAsync(UsuarioLogin login)
-        {
-            try
-            {
-                var response = await _http.PostAsJsonAsync("api/Usuario/iniciosesion", login);
-                if (!response.IsSuccessStatusCode) return null;
-
-                var body = await response.Content.ReadAsStringAsync();
-                var content = JsonSerializer.Deserialize<JsonElement>(body);
-                var token = content.GetProperty("datos").GetProperty("jwt").GetString();
-
-                if (!string.IsNullOrEmpty(token))
-                {
-                    await _js.InvokeVoidAsync("localStorage.setItem", TOKEN_KEY, token);
-                    await NotifyStateChanged();
-                }
-
-                return token;
-            }
-            catch
-            {
-                return null;
-            }
-        }*/
 
         public async Task<string?> LoginAsync(UsuarioLogin login)
         {
@@ -60,9 +36,9 @@ namespace NetCoreBlazor_main_remake.Client.Services
                     try
                     {
                         var content = JsonSerializer.Deserialize<JsonElement>(body);
-                        if (content.TryGetProperty("mensaje", out var mensaje))
+                        if (content.TryGetProperty("mensaje", out var _))
                         {
-                            return null; // Backend ya envió mensaje, Blazor puede mostrarlo
+                            return null;
                         }
                     }
                     catch { }
@@ -72,10 +48,12 @@ namespace NetCoreBlazor_main_remake.Client.Services
 
                 var contentBody = JsonSerializer.Deserialize<JsonElement>(body);
                 var token = contentBody.GetProperty("datos").GetProperty("jwt").GetString();
+                var userId = contentBody.GetProperty("datos").GetProperty("idusuariosesion").GetInt32();
 
                 if (!string.IsNullOrEmpty(token))
                 {
                     await _js.InvokeVoidAsync("localStorage.setItem", TOKEN_KEY, token);
+                    await _js.InvokeVoidAsync("localStorage.setItem", USER_ID_KEY, userId.ToString());
                     await NotifyStateChanged();
                 }
 
@@ -86,22 +64,6 @@ namespace NetCoreBlazor_main_remake.Client.Services
                 return null;
             }
         }
-
-
-        /*public async Task<string?> RegisterAsync(UsuarioRegister user)
-        {
-            try
-            {
-                var response = await _http.PostAsJsonAsync("api/Usuario/registrarse", user);
-                if (!response.IsSuccessStatusCode) return null;
-
-                return "ok";
-            }
-            catch
-            {
-                return null;
-            }
-        }*/
 
         public async Task<string?> RegisterAsync(UsuarioRegister user)
         {
@@ -133,16 +95,23 @@ namespace NetCoreBlazor_main_remake.Client.Services
             }
         }
 
-
         public async Task LogoutAsync()
         {
             await _js.InvokeVoidAsync("localStorage.removeItem", TOKEN_KEY);
+            await _js.InvokeVoidAsync("localStorage.removeItem", USER_ID_KEY);
             await NotifyStateChanged();
         }
 
         public async Task<string?> GetTokenAsync()
         {
             return await _js.InvokeAsync<string>("localStorage.getItem", TOKEN_KEY);
+        }
+
+        public async Task<int?> GetUserIdAsync()
+        {
+            var id = await _js.InvokeAsync<string>("localStorage.getItem", USER_ID_KEY);
+            if (int.TryParse(id, out var userId)) return userId;
+            return null;
         }
 
         public async Task<bool> IsLoggedInAsync()

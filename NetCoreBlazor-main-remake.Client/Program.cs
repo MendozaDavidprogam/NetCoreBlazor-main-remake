@@ -1,3 +1,4 @@
+// NetCoreBlazor-main-remake.Client/Program.cs
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using NetCoreBlazor_main_remake.Client;
@@ -10,13 +11,14 @@ builder.RootComponents.Add<App>("#app");
 // HttpClient con BaseAddress de tu API
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("https://netcoreapi-main-remake.onrender.com/")
+    BaseAddress = new Uri("http://localhost:5189/")
 });
+
 
 // Servicios
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ProtectedRouteService>();
 builder.Services.AddScoped<UsuarioService>();
-//
+
 
 await builder.Build().RunAsync();
