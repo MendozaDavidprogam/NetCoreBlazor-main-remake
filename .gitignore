@@ -24,7 +24,7 @@ wwwroot/lib/
 
 # Publicaciones
 
-*.publishsettings
+
 
 # Paquetes NuGet
 *.nupkg
