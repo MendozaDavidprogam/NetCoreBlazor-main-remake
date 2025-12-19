@@ -1,0 +1,22 @@
+﻿@page "/home"
+@inject NetCoreBlazor_main_remake.Client.Services.ProtectedRouteService ProtectedRoute
+
+<h1>Bienvenido</h1>
+
+<div class="search-bar">
+    <input placeholder="Buscar..." />
+    <button>🔍</button>
+</div>
+
+<div class="cards">
+    <div class="card"><img src="images/platillo1.jpg" alt="Platillo 1" /></div>
+    <div class="card"><img src="images/platillo2.jpg" alt="Platillo 2" /></div>
+    <div class="card"><img src="images/platillo3.jpg" alt="Platillo 3" /></div>
+</div>
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        await ProtectedRoute.EnsureAuthenticatedAsync();
+    }
+}
