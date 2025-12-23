@@ -19,6 +19,7 @@ builder.Services.AddScoped(sp => new HttpClient
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ProtectedRouteService>();
 builder.Services.AddScoped<UsuarioService>();
+builder.Services.AddScoped<TipoIngredienteService>();
 
 
 await builder.Build().RunAsync();

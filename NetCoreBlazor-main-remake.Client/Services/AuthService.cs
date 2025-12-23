@@ -4,6 +4,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using NetCoreBlazor_main_remake.Client.Models;
 using Microsoft.JSInterop;
+using System.Text;
 
 namespace NetCoreBlazor_main_remake.Client.Services
 {
@@ -11,12 +12,14 @@ namespace NetCoreBlazor_main_remake.Client.Services
     {
         private readonly HttpClient _http;
         private readonly IJSRuntime _js;
+
         private const string TOKEN_KEY = "jwt_token";
         private const string USER_ID_KEY = "user_id";
 
         public event Func<Task>? OnChange;
 
-        private async Task NotifyStateChanged() => await (OnChange?.Invoke() ?? Task.CompletedTask);
+        private async Task NotifyStateChanged() =>
+            await (OnChange?.Invoke() ?? Task.CompletedTask);
 
         public AuthService(HttpClient http, IJSRuntime js)
         {
@@ -24,6 +27,7 @@ namespace NetCoreBlazor_main_remake.Client.Services
             _js = js;
         }
 
+        // ====================== LOGIN ======================
         public async Task<string?> LoginAsync(UsuarioLogin login)
         {
             try
@@ -32,23 +36,11 @@ namespace NetCoreBlazor_main_remake.Client.Services
                 var body = await response.Content.ReadAsStringAsync();
 
                 if (!response.IsSuccessStatusCode)
-                {
-                    try
-                    {
-                        var content = JsonSerializer.Deserialize<JsonElement>(body);
-                        if (content.TryGetProperty("mensaje", out var _))
-                        {
-                            return null;
-                        }
-                    }
-                    catch { }
-
                     return null;
-                }
 
-                var contentBody = JsonSerializer.Deserialize<JsonElement>(body);
-                var token = contentBody.GetProperty("datos").GetProperty("jwt").GetString();
-                var userId = contentBody.GetProperty("datos").GetProperty("idusuariosesion").GetInt32();
+                var json = JsonSerializer.Deserialize<JsonElement>(body);
+                var token = json.GetProperty("datos").GetProperty("jwt").GetString();
+                var userId = json.GetProperty("datos").GetProperty("idusuariosesion").GetInt32();
 
                 if (!string.IsNullOrEmpty(token))
                 {
@@ -65,36 +57,24 @@ namespace NetCoreBlazor_main_remake.Client.Services
             }
         }
 
+        // ====================== REGISTER ======================
         public async Task<string?> RegisterAsync(UsuarioRegister user)
         {
             try
             {
                 var response = await _http.PostAsJsonAsync("api/Usuario/registrarse", user);
-                var body = await response.Content.ReadAsStringAsync();
-
                 if (!response.IsSuccessStatusCode)
-                {
-                    try
-                    {
-                        var content = JsonSerializer.Deserialize<JsonElement>(body);
-                        if (content.TryGetProperty("mensaje", out var mensaje))
-                        {
-                            return mensaje.GetString();
-                        }
-                    }
-                    catch { }
-
                     return "Error al registrarse";
-                }
 
                 return "ok";
             }
             catch
             {
-                return "Error de conexión al servidor";
+                return "Error de conexión";
             }
         }
 
+        // ====================== LOGOUT ======================
         public async Task LogoutAsync()
         {
             await _js.InvokeVoidAsync("localStorage.removeItem", TOKEN_KEY);
@@ -102,6 +82,7 @@ namespace NetCoreBlazor_main_remake.Client.Services
             await NotifyStateChanged();
         }
 
+        // ====================== TOKEN ======================
         public async Task<string?> GetTokenAsync()
         {
             var token = await _js.InvokeAsync<string>("localStorage.getItem", TOKEN_KEY);
@@ -115,26 +96,49 @@ namespace NetCoreBlazor_main_remake.Client.Services
             return token;
         }
 
-        public async Task<int?> GetUserIdAsync()
-        {
-            var token = await GetTokenAsync();
-            if (string.IsNullOrEmpty(token)) return null;
-
-            var id = await _js.InvokeAsync<string>("localStorage.getItem", USER_ID_KEY);
-            if (int.TryParse(id, out var userId)) return userId;
-
-            return null;
-        }
-
         public async Task<bool> IsLoggedInAsync()
         {
             var token = await GetTokenAsync();
             return !string.IsNullOrEmpty(token);
         }
 
-        // ------------------------------
-        // Verifica si el JWT ha expirado
-        // ------------------------------
+        // ====================== ROLE ======================
+        public async Task<string?> GetRoleAsync()
+        {
+            var token = await GetTokenAsync();
+            if (string.IsNullOrEmpty(token)) return null;
+
+            try
+            {
+                var parts = token.Split('.');
+                if (parts.Length != 3) return null;
+
+                var payload = parts[1];
+                payload = payload.Replace('-', '+').Replace('_', '/');
+                switch (payload.Length % 4)
+                {
+                    case 2: payload += "=="; break;
+                    case 3: payload += "="; break;
+                }
+
+                var bytes = Convert.FromBase64String(payload);
+                var json = Encoding.UTF8.GetString(bytes);
+                var doc = JsonDocument.Parse(json);
+
+                // Claim estándar de rol
+                if (doc.RootElement.TryGetProperty("role", out var role))
+                    return role.GetString();
+
+                // Claim alternativo (ASP.NET)
+                if (doc.RootElement.TryGetProperty("http://schemas.microsoft.com/ws/2008/06/identity/claims/role", out role))
+                    return role.GetString();
+            }
+            catch { }
+
+            return null;
+        }
+
+        // ====================== EXP ======================
         private bool IsTokenExpired(string token)
         {
             try
@@ -151,14 +155,13 @@ namespace NetCoreBlazor_main_remake.Client.Services
                 }
 
                 var bytes = Convert.FromBase64String(payload);
-                var json = System.Text.Encoding.UTF8.GetString(bytes);
-                using var doc = JsonDocument.Parse(json);
+                var json = Encoding.UTF8.GetString(bytes);
+                var doc = JsonDocument.Parse(json);
 
-                if (doc.RootElement.TryGetProperty("exp", out var expProp))
+                if (doc.RootElement.TryGetProperty("exp", out var exp))
                 {
-                    var expUnix = expProp.GetInt64();
-                    var expDate = DateTimeOffset.FromUnixTimeSeconds(expUnix).UtcDateTime;
-                    return expDate < DateTime.UtcNow;
+                    var date = DateTimeOffset.FromUnixTimeSeconds(exp.GetInt64()).UtcDateTime;
+                    return date < DateTime.UtcNow;
                 }
             }
             catch
