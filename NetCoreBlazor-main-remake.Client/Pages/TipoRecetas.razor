@@ -1,25 +1,25 @@
-@page "/tipo-ingredientes"
+@page "/tipo-recetas"
 @inject NetCoreBlazor_main_remake.Client.Services.AuthService AuthService
-@inject NetCoreBlazor_main_remake.Client.Services.TipoIngredienteService Servicio
+@inject NetCoreBlazor_main_remake.Client.Services.TipoRecetaService Servicio
 @inject NavigationManager Navigation
 
 <div class="container-fluid">
 
-    <!-- Header Dashboard -->
+    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h3 class="mb-1">Tipos de Ingredientes</h3>
+            <h3 class="mb-1">Tipos de Receta</h3>
             <small class="text-muted">
-                Administración y mantenimiento de tipos de ingredientes
+                Administración de categorías de recetas
             </small>
         </div>
 
         <button class="btn btn-success" @onclick="AbrirCrear">
-            + Agregar Tipo Ingrediente
+            + Agregar Tipo Receta
         </button>
     </div>
 
-    <!-- Card principal -->
+    <!-- Card -->
     <div class="card shadow-sm border-0">
         <div class="card-body">
 
@@ -27,13 +27,13 @@
             {
                 <div class="text-center py-4">
                     <div class="spinner-border text-primary"></div>
-                    <p class="mt-2 mb-0">Cargando información...</p>
+                    <p class="mt-2">Cargando...</p>
                 </div>
             }
             else if (!lista.Any())
             {
                 <div class="alert alert-info mb-0">
-                    No hay tipos de ingredientes registrados.
+                    No hay tipos de receta registrados.
                 </div>
             }
             else
@@ -83,8 +83,8 @@
             <div class="modal-header">
                 <h5 class="modal-title">
                     @(editando
-                        ? $"Editar Tipo Ingrediente: {formulario.Name}"
-                        : "Nuevo Tipo Ingrediente")
+                        ? $"Editar Tipo Receta: {formulario.Name}"
+                        : "Nuevo Tipo Receta")
                 </h5>
                 <button class="btn-close" @onclick="CerrarModal"></button>
             </div>
@@ -105,7 +105,8 @@
 
                     <div class="mb-3">
                         <label class="form-label">Nombre</label>
-                        <InputText class="form-control" @bind-Value="formulario.Name" />
+                        <InputText class="form-control"
+                                   @bind-Value="formulario.Name" />
                         <ValidationMessage For="@(() => formulario.Name)" />
                     </div>
 
@@ -133,8 +134,8 @@
 
                         <button type="button"
                                 class="btn btn-secondary"
-                                disabled="@cargando"
-                                @onclick="CerrarModal">
+                                @onclick="CerrarModal"
+                                disabled="@cargando">
                             Cancelar
                         </button>
                     </div>
@@ -160,7 +161,7 @@
 
             <div class="modal-body text-center">
                 <p class="mb-0">
-                    ¿Está seguro que desea eliminar el tipo de ingrediente
+                    ¿Está seguro que desea eliminar el tipo de receta
                     <strong>@itemAEliminar?.Name</strong>?
                 </p>
             </div>
@@ -181,7 +182,7 @@
 </div>
 
 @code {
-    private List<TipoIngredienteDTO>? lista;
+    private List<TipoRecetaDTO>? lista;
     private bool mostrarModal;
     private bool mostrarConfirmacion;
     private bool editando;
@@ -191,8 +192,8 @@
     private string? mensajeExito;
     private string? mensajeError;
 
-    private TipoIngredienteCreateDTO formulario = new();
-    private TipoIngredienteDTO? itemAEliminar;
+    private TipoRecetaCreateDTO formulario = new();
+    private TipoRecetaDTO? itemAEliminar;
 
     protected override async Task OnInitializedAsync()
     {
@@ -220,7 +221,7 @@
         mostrarModal = true;
     }
 
-    private void AbrirEditar(TipoIngredienteDTO item)
+    private void AbrirEditar(TipoRecetaDTO item)
     {
         editando = true;
         editId = item.Id;
@@ -248,7 +249,7 @@
 
         if (!ok)
         {
-            mensajeError = "Ocurrió un error al guardar.";
+            mensajeError = "Error al guardar el tipo de receta.";
             return;
         }
 
@@ -258,7 +259,7 @@
         mostrarModal = false;
     }
 
-    private void AbrirConfirmacion(TipoIngredienteDTO item)
+    private void AbrirConfirmacion(TipoRecetaDTO item)
     {
         itemAEliminar = item;
         mostrarConfirmacion = true;

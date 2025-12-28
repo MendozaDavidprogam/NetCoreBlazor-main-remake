@@ -1,5 +1,4 @@
 // NetCoreBlazor-main-remake.Client/Services/AuthService.cs
-
 using System.Net.Http.Json;
 using System.Text.Json;
 using NetCoreBlazor_main_remake.Client.Models;
