@@ -1,0 +1,157 @@
+@page "/recetas/crear"
+
+<div class="container-fluid">
+
+    <!-- ====== CREAR RECETA ====== -->
+    <h2 class="text-center mb-4">Crear una receta</h2>
+
+    <div class="card shadow-sm border-0 p-4 mb-5">
+
+        <div class="mb-3">
+            <label class="form-label">Nombre</label>
+            <input class="form-control" placeholder="Nombre de la receta" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Visibilidad</label>
+            <select class="form-control">
+                <option>Pública</option>
+                <option>Privada</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Tipo de receta</label>
+            <select class="form-control">
+                <option>Seleccionar tipo</option>
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Cantidad de personas</label>
+            <input type="number" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Nivel</label>
+            <select class="form-control">
+                <option>Fácil</option>
+                <option>Media</option>
+                <option>Difícil</option>
+            </select>
+        </div>
+
+    </div>
+
+    <!-- ====== INGREDIENTES ====== -->
+    <h3 class="text-center mb-3">Ingredientes de la Receta</h3>
+
+    <div class="card shadow-sm border-0 p-4 mb-5">
+
+        <div class="mb-3">
+            <label class="form-label">Ingredientes</label>
+            <input class="form-control" placeholder="Ingrediente" />
+        </div>
+
+        <div class="text-center mb-3">
+            <button class="btn btn-secondary" disabled>
+                Agregar en tabla
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered text-center align-middle">
+                <thead class="table-success">
+                    <tr>
+                        <th>#</th>
+                        <th>Ingrediente</th>
+                        <th>Cantidad</th>
+                        <th>Unidad</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Harina</td>
+                        <td>500</td>
+                        <td>gr</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Huevo</td>
+                        <td>3</td>
+                        <td>un</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- ====== PASOS ====== -->
+    <h3 class="text-center mb-3">Agregue los pasos de la receta</h3>
+
+    <div class="card shadow-sm border-0 p-4 mb-5">
+
+        <div class="mb-3">
+            <label class="form-label">Descripción</label>
+            <textarea class="form-control" rows="2"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Índice del orden</label>
+            <input type="number" class="form-control" />
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">Archivo multimedia</label>
+            <div class="border rounded p-5 text-center text-muted">
+                Área de carga de archivo
+            </div>
+        </div>
+
+        <div class="text-center mb-3">
+            <button class="btn btn-secondary" disabled>
+                Agregar en tabla
+            </button>
+        </div>
+
+        <div class="table-responsive">
+            <table class="table table-bordered text-center align-middle">
+                <thead class="table-success">
+                    <tr>
+                        <th>#</th>
+                        <th>Descripción</th>
+                        <th>Orden</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>Mezclar ingredientes</td>
+                        <td>1</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>Hornear 30 minutos</td>
+                        <td>2</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+    <!-- ====== GUARDAR ====== -->
+    <div class="text-center mb-5">
+        <button class="btn btn-success btn-lg" disabled>
+            Guardar
+        </button>
+    </div>
+
+</div>

@@ -20,6 +20,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<ProtectedRouteService>();
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<TipoIngredienteService>();
-
+builder.Services.AddScoped<RecetaService>();
+builder.Services.AddScoped<IngredienteService>();
 
 await builder.Build().RunAsync();

@@ -1,0 +1,35 @@
+@page "/recetas"
+@inject RecetaService Servicio
+
+<h3>Recetas</h3>
+
+<button class="btn btn-success" @onclick="AbrirCrear">
+    + Nueva Receta
+</button>
+
+@if (lista == null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Personas</th>
+                <th>Nivel</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in lista)
+            {
+                <tr @onclick="() => AbrirEditar(r)">
+                    <td>@r.Name</td>
+                    <td>@r.QuantityPersons</td>
+                    <td>@r.Leven</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
