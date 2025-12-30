@@ -167,7 +167,7 @@ namespace NetCoreBlazor_main_remake.Client.Services
             {
                 return true;
             }
-
+            
             return true;
         }
     }

@@ -21,6 +21,7 @@ builder.Services.AddScoped<ProtectedRouteService>();
 builder.Services.AddScoped<UsuarioService>();
 builder.Services.AddScoped<TipoIngredienteService>();
 builder.Services.AddScoped<TipoRecetaService>();
-
+builder.Services.AddScoped<UsuarioAdminService>();
+builder.Services.AddScoped<UnidadMedicionService>();
 
 await builder.Build().RunAsync();

@@ -1,0 +1,268 @@
+@page "/unida-de-medicion"
+@inject NetCoreBlazor_main_remake.Client.Services.AuthService AuthService
+@inject NetCoreBlazor_main_remake.Client.Services.UnidadMedicionService Servicio
+@inject NavigationManager Navigation
+
+<div class="container-fluid">
+
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h3 class="mb-1">Unidades de Medición</h3>
+            <small class="text-muted">
+                Administración de unidades de medición
+            </small>
+        </div>
+
+        <button class="btn btn-success" @onclick="AbrirCrear">
+            + Agregar Unidad
+        </button>
+    </div>
+
+    <!-- Card -->
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            @if (lista == null)
+            {
+                <div class="text-center py-4">
+                    <div class="spinner-border text-primary"></div>
+                    <p class="mt-2">Cargando...</p>
+                </div>
+            }
+            else if (!lista.Any())
+            {
+                <div class="alert alert-info mb-0">
+                    No hay unidades registradas.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nombre</th>
+                                <th class="text-end">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in lista)
+                            {
+                                <tr style="cursor:pointer"
+                                    @onclick="() => AbrirEditar(item)">
+                                    <td class="fw-semibold">@item.Name</td>
+                                    <td class="text-end">
+                                        <button class="btn btn-danger btn-sm"
+                                                @onclick:stopPropagation
+                                                @onclick="() => AbrirConfirmacion(item)">
+                                            Eliminar
+                                        </button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CREAR / EDITAR -->
+<div class="modal @(mostrarModal ? "show d-block" : "")"
+     tabindex="-1"
+     style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    @(editando ? $"Editar Unidad: {formulario.Name}" : "Nueva Unidad")
+                </h5>
+                <button class="btn-close" @onclick="CerrarModal"></button>
+            </div>
+
+            <div class="modal-body">
+
+                @if (!string.IsNullOrEmpty(mensajeExito))
+                {
+                    <div class="alert alert-success">@mensajeExito</div>
+                }
+                @if (!string.IsNullOrEmpty(mensajeError))
+                {
+                    <div class="alert alert-danger">@mensajeError</div>
+                }
+
+                <EditForm Model="formulario" OnValidSubmit="Guardar">
+                    <DataAnnotationsValidator />
+
+                    <div class="mb-3">
+                        <label class="form-label">Nombre</label>
+                        <InputText class="form-control"
+                                   @bind-Value="formulario.Name" />
+                        <ValidationMessage For="@(() => formulario.Name)" />
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <button type="submit"
+                                class="btn btn-primary"
+                                disabled="@cargando">
+                            @if (cargando)
+                            {
+                                <span class="spinner-border spinner-border-sm"></span>
+                            }
+                            else
+                            {
+                                <span>Guardar</span>
+                            }
+                        </button>
+
+                        <button type="button"
+                                class="btn btn-secondary"
+                                disabled="@cargando"
+                                @onclick="CerrarModal">
+                            Cancelar
+                        </button>
+                    </div>
+                </EditForm>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CONFIRMACIÓN -->
+<div class="modal @(mostrarConfirmacion ? "show d-block" : "")"
+     tabindex="-1"
+     style="background-color: rgba(0,0,0,0.5);">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+        <div class="modal-content">
+
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">Confirmar eliminación</h5>
+                <button class="btn-close btn-close-white"
+                        @onclick="CerrarConfirmacion"></button>
+            </div>
+
+            <div class="modal-body text-center">
+                ¿Eliminar la unidad
+                <strong>@itemAEliminar?.Name</strong>?
+            </div>
+
+            <div class="modal-footer justify-content-center gap-2">
+                <button class="btn btn-danger" @onclick="EliminarConfirmado">
+                    Sí, eliminar
+                </button>
+                <button class="btn btn-secondary" @onclick="CerrarConfirmacion">
+                    Cancelar
+                </button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<UnidadMedicionDTO>? lista;
+    private bool mostrarModal;
+    private bool mostrarConfirmacion;
+    private bool editando;
+    private bool cargando;
+    private int editId;
+
+    private string? mensajeExito;
+    private string? mensajeError;
+
+    private UnidadMedicionCreateDTO formulario = new();
+    private UnidadMedicionDTO? itemAEliminar;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var role = await AuthService.GetRoleAsync();
+        if (role != "Administrador")
+        {
+            Navigation.NavigateTo("/home");
+            return;
+        }
+
+        await Cargar();
+    }
+
+    private async Task Cargar()
+    {
+        lista = await Servicio.GetAllAsync();
+    }
+
+    private void AbrirCrear()
+    {
+        formulario = new();
+        editando = false;
+        mensajeError = null;
+        mensajeExito = null;
+        mostrarModal = true;
+    }
+
+    private void AbrirEditar(UnidadMedicionDTO item)
+    {
+        editando = true;
+        editId = item.Id;
+        formulario = new() { Name = item.Name };
+        mensajeError = null;
+        mensajeExito = null;
+        mostrarModal = true;
+    }
+
+    private async Task Guardar()
+    {
+        cargando = true;
+        mensajeError = null;
+        mensajeExito = null;
+
+        var ok = editando
+            ? await Servicio.UpdateAsync(editId, formulario)
+            : await Servicio.CreateAsync(formulario);
+
+        cargando = false;
+
+        if (!ok)
+        {
+            mensajeError = "Error al guardar la unidad.";
+            return;
+        }
+
+        mensajeExito = "Guardado correctamente.";
+        await Cargar();
+        await Task.Delay(800);
+        mostrarModal = false;
+    }
+
+    private void AbrirConfirmacion(UnidadMedicionDTO item)
+    {
+        itemAEliminar = item;
+        mostrarConfirmacion = true;
+    }
+
+    private async Task EliminarConfirmado()
+    {
+        if (itemAEliminar == null) return;
+
+        await Servicio.DeleteAsync(itemAEliminar.Id);
+        mostrarConfirmacion = false;
+        itemAEliminar = null;
+        await Cargar();
+    }
+
+    private void CerrarConfirmacion()
+    {
+        mostrarConfirmacion = false;
+        itemAEliminar = null;
+    }
+
+    private void CerrarModal()
+    {
+        if (!cargando)
+            mostrarModal = false;
+    }
+}
