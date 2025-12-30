@@ -23,5 +23,6 @@ builder.Services.AddScoped<TipoIngredienteService>();
 builder.Services.AddScoped<TipoRecetaService>();
 builder.Services.AddScoped<UsuarioAdminService>();
 builder.Services.AddScoped<UnidadMedicionService>();
+builder.Services.AddScoped<PasoService>();
 
 await builder.Build().RunAsync();
