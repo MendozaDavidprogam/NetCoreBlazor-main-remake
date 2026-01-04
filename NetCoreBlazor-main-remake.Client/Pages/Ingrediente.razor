@@ -1,7 +1,12 @@
 @page "/ingredientes"
-@inject AuthService AuthService
-@inject IngredienteService Servicio
-@inject TipoIngredienteService TipoServicio
+
+
+
+
+@inject NetCoreBlazor_main_remake.Client.Services.AuthService AuthService
+@inject NetCoreBlazor_main_remake.Client.Services.IngredienteService IngredienteService
+@inject NetCoreBlazor_main_remake.Client.Services.TipoIngredienteService TipoIngredienteService
+
 @inject NavigationManager Navigation
 
 <div class="container-fluid">
@@ -147,12 +152,12 @@
         }
 
         await Cargar();
-        tipos = await TipoServicio.GetAllAsync();
+        tipos = await TipoIngredienteService.GetAllAsync();
     }
 
     private async Task Cargar()
     {
-        lista = await Servicio.GetAllAsync();
+        lista = await IngredienteService.GetAllAsync();
     }
 
     private void AbrirCrear()
@@ -178,8 +183,8 @@
     private async Task Guardar()
     {
         var ok = editando
-            ? await Servicio.UpdateAsync(editId, formulario)
-            : await Servicio.CreateAsync(formulario);
+            ? await IngredienteService.UpdateAsync(editId, formulario)
+            : await IngredienteService.CreateAsync(formulario);
 
         if (ok)
         {
@@ -190,7 +195,7 @@
 
     private async Task Eliminar(int id)
     {
-        await Servicio.DeleteAsync(id);
+        await IngredienteService.DeleteAsync(id);
         await Cargar();
     }
 

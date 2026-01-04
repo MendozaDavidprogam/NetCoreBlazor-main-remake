@@ -1,5 +1,7 @@
 @page "/recetas"
-@inject RecetaService Servicio
+@using NetCoreBlazor_main_remake.Client.Services
+@using NetCoreBlazor_main_remake.Client.Models
+@inject RecetaService RecetaService
 
 <h3>Recetas</h3>
 
@@ -24,7 +26,7 @@ else
         <tbody>
             @foreach (var r in lista)
             {
-                <tr @onclick="() => AbrirEditar(r)">
+                <tr style="cursor:pointer" @onclick="() => AbrirEditar(r)">
                     <td>@r.Name</td>
                     <td>@r.QuantityPersons</td>
                     <td>@r.Leven</td>
@@ -32,4 +34,25 @@ else
             }
         </tbody>
     </table>
+}
+
+@code {
+    private List<RecetaDTO>? lista;
+
+    protected override async Task OnInitializedAsync()
+    {
+        lista = await RecetaService.GetAllAsync();
+    }
+
+    private void AbrirCrear()
+    {
+        // por ahora solo UI
+        Console.WriteLine("Abrir modal crear receta");
+    }
+
+    private void AbrirEditar(RecetaDTO receta)
+    {
+        // por ahora solo UI
+        Console.WriteLine($"Editar receta {receta.Id}");
+    }
 }
