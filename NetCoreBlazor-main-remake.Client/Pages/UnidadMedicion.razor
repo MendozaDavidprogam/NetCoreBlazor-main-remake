@@ -1,26 +1,25 @@
-<!--C:\Users\L\Documents\NetCoreBlazor-main-remake\NetCoreBlazor-main-remake.Client\Pages\TipoIngredientes.razor -->
-@page "/tipo-ingredientes"
+@page "/unida-de-medicion"
 @inject NetCoreBlazor_main_remake.Client.Services.AuthService AuthService
-@inject NetCoreBlazor_main_remake.Client.Services.TipoIngredienteService Servicio
+@inject NetCoreBlazor_main_remake.Client.Services.UnidadMedicionService Servicio
 @inject NavigationManager Navigation
 
 <div class="container-fluid">
 
-    <!-- Header Dashboard -->
+    <!-- Header -->
     <div class="d-flex justify-content-between align-items-center mb-4">
         <div>
-            <h3 class="mb-1">Tipos de Ingredientes</h3>
+            <h3 class="mb-1">Unidades de Medición</h3>
             <small class="text-muted">
-                Administración y mantenimiento de tipos de ingredientes
+                Administración de unidades de medición
             </small>
         </div>
 
         <button class="btn btn-success" @onclick="AbrirCrear">
-            + Agregar Tipo Ingrediente
+            + Agregar Unidad
         </button>
     </div>
 
-    <!-- Card principal -->
+    <!-- Card -->
     <div class="card shadow-sm border-0">
         <div class="card-body">
 
@@ -28,13 +27,13 @@
             {
                 <div class="text-center py-4">
                     <div class="spinner-border text-primary"></div>
-                    <p class="mt-2 mb-0">Cargando información...</p>
+                    <p class="mt-2">Cargando...</p>
                 </div>
             }
             else if (!lista.Any())
             {
                 <div class="alert alert-info mb-0">
-                    No hay tipos de ingredientes registrados.
+                    No hay unidades registradas.
                 </div>
             }
             else
@@ -44,7 +43,6 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Nombre</th>
-                                <th>Descripción</th>
                                 <th class="text-end">Acciones</th>
                             </tr>
                         </thead>
@@ -54,10 +52,8 @@
                                 <tr style="cursor:pointer"
                                     @onclick="() => AbrirEditar(item)">
                                     <td class="fw-semibold">@item.Name</td>
-                                    <td>@item.Descriptions</td>
                                     <td class="text-end">
                                         <button class="btn btn-danger btn-sm"
-                                                title="Eliminar"
                                                 @onclick:stopPropagation
                                                 @onclick="() => AbrirConfirmacion(item)">
                                             Eliminar
@@ -83,9 +79,7 @@
 
             <div class="modal-header">
                 <h5 class="modal-title">
-                    @(editando
-                        ? $"Editar Tipo Ingrediente: {formulario.Name}"
-                        : "Nuevo Tipo Ingrediente")
+                    @(editando ? $"Editar Unidad: {formulario.Name}" : "Nueva Unidad")
                 </h5>
                 <button class="btn-close" @onclick="CerrarModal"></button>
             </div>
@@ -106,16 +100,9 @@
 
                     <div class="mb-3">
                         <label class="form-label">Nombre</label>
-                        <InputText class="form-control" @bind-Value="formulario.Name" />
+                        <InputText class="form-control"
+                                   @bind-Value="formulario.Name" />
                         <ValidationMessage For="@(() => formulario.Name)" />
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Descripción</label>
-                        <InputTextArea class="form-control"
-                                       rows="3"
-                                       @bind-Value="formulario.Descriptions" />
-                        <ValidationMessage For="@(() => formulario.Descriptions)" />
                     </div>
 
                     <div class="d-flex justify-content-end gap-2">
@@ -146,7 +133,7 @@
     </div>
 </div>
 
-<!-- MODAL CONFIRMACIÓN ELIMINAR -->
+<!-- MODAL CONFIRMACIÓN -->
 <div class="modal @(mostrarConfirmacion ? "show d-block" : "")"
      tabindex="-1"
      style="background-color: rgba(0,0,0,0.5);">
@@ -160,19 +147,15 @@
             </div>
 
             <div class="modal-body text-center">
-                <p class="mb-0">
-                    ¿Está seguro que desea eliminar el tipo de ingrediente
-                    <strong>@itemAEliminar?.Name</strong>?
-                </p>
+                ¿Eliminar la unidad
+                <strong>@itemAEliminar?.Name</strong>?
             </div>
 
             <div class="modal-footer justify-content-center gap-2">
-                <button class="btn btn-danger"
-                        @onclick="EliminarConfirmado">
+                <button class="btn btn-danger" @onclick="EliminarConfirmado">
                     Sí, eliminar
                 </button>
-                <button class="btn btn-secondary"
-                        @onclick="CerrarConfirmacion">
+                <button class="btn btn-secondary" @onclick="CerrarConfirmacion">
                     Cancelar
                 </button>
             </div>
@@ -182,7 +165,7 @@
 </div>
 
 @code {
-    private List<TipoIngredienteDTO>? lista;
+    private List<UnidadMedicionDTO>? lista;
     private bool mostrarModal;
     private bool mostrarConfirmacion;
     private bool editando;
@@ -192,8 +175,8 @@
     private string? mensajeExito;
     private string? mensajeError;
 
-    private TipoIngredienteCreateDTO formulario = new();
-    private TipoIngredienteDTO? itemAEliminar;
+    private UnidadMedicionCreateDTO formulario = new();
+    private UnidadMedicionDTO? itemAEliminar;
 
     protected override async Task OnInitializedAsync()
     {
@@ -221,15 +204,11 @@
         mostrarModal = true;
     }
 
-    private void AbrirEditar(TipoIngredienteDTO item)
+    private void AbrirEditar(UnidadMedicionDTO item)
     {
         editando = true;
         editId = item.Id;
-        formulario = new()
-        {
-            Name = item.Name,
-            Descriptions = item.Descriptions
-        };
+        formulario = new() { Name = item.Name };
         mensajeError = null;
         mensajeExito = null;
         mostrarModal = true;
@@ -249,7 +228,7 @@
 
         if (!ok)
         {
-            mensajeError = "Ocurrió un error al guardar.";
+            mensajeError = "Error al guardar la unidad.";
             return;
         }
 
@@ -259,7 +238,7 @@
         mostrarModal = false;
     }
 
-    private void AbrirConfirmacion(TipoIngredienteDTO item)
+    private void AbrirConfirmacion(UnidadMedicionDTO item)
     {
         itemAEliminar = item;
         mostrarConfirmacion = true;
@@ -267,8 +246,7 @@
 
     private async Task EliminarConfirmado()
     {
-        if (itemAEliminar == null)
-            return;
+        if (itemAEliminar == null) return;
 
         await Servicio.DeleteAsync(itemAEliminar.Id);
         mostrarConfirmacion = false;

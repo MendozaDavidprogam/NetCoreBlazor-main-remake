@@ -31,22 +31,18 @@ namespace NetCoreBlazor_main_remake.Client.Services
         public async Task<List<IngredienteDTO>> GetAllAsync()
         {
             await AddAuthHeader();
-
             var response = await _http.GetAsync("api/Ingrediente");
             if (!response.IsSuccessStatusCode) return new();
 
             var json = JsonSerializer.Deserialize<JsonElement>(
                 await response.Content.ReadAsStringAsync());
 
-            var datos = json.GetProperty("datos");
-
-            return datos.EnumerateArray().Select(x => new IngredienteDTO
+            return json.GetProperty("datos").EnumerateArray().Select(x => new IngredienteDTO
             {
                 Id = x.GetProperty("id").GetInt32(),
                 Name = x.GetProperty("name").GetString() ?? "",
-                Descriptions = x.GetProperty("descriptions").GetString() ?? "",
-                TipoIngredienteId = x.GetProperty("tipoIngredienteId").GetInt32(),
-                TipoIngredienteNombre = x.GetProperty("tipoIngredienteNombre").GetString() ?? ""
+                Type = x.GetProperty("type").GetInt32(),
+                TipoNombre = x.GetProperty("tipoIngrediente").GetProperty("name").GetString() ?? ""
             }).ToList();
         }
 

@@ -1,7 +1,6 @@
-// NetCoreBlazor-main-remake.Client/Models/TipoIngredienteDTO.cs
 namespace NetCoreBlazor_main_remake.Client.Models
 {
-    public class TipoIngredienteDTO
+    public class TipoRecetaDTO
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;

@@ -1,0 +1,309 @@
+@page "/ingredientes"
+@inject NetCoreBlazor_main_remake.Client.Services.IngredienteService Servicio
+@inject NetCoreBlazor_main_remake.Client.Services.TipoIngredienteService TipoServicio
+@inject NetCoreBlazor_main_remake.Client.Services.AuthService AuthService
+@inject NavigationManager Navigation
+
+<div class="container-fluid">
+
+    <div class="d-flex justify-content-between mb-4">
+        <div>
+            <h3>Ingredientes</h3>
+            <small class="text-muted">Gestión de ingredientes</small>
+        </div>
+
+        <button class="btn btn-success" @onclick="AbrirCrear">
+            + Agregar Ingrediente
+        </button>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+
+            @if (lista == null)
+            {
+                <div class="text-center py-4">
+                    <div class="spinner-border"></div>
+                </div>
+            }
+            else if (!lista.Any())
+            {
+                <div class="alert alert-info">
+                    No hay ingredientes registrados.
+                </div>
+            }
+            else
+            {
+                <table class="table table-hover align-middle">
+                    <thead>
+                        <tr>
+                            <th>Nombre</th>
+                            <th>Tipo</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in lista)
+                        {
+                            <tr @onclick="() => AbrirEditar(item)" style="cursor:pointer">
+                                <td>@item.Name</td>
+                                <td>@item.TipoNombre</td>
+                                <td class="text-end">
+                                    <button class="btn btn-danger btn-sm"
+                                            @onclick:stopPropagation
+                                            @onclick="() => AbrirConfirmacion(item)">
+                                        Eliminar
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL INGREDIENTE -->
+<div class="modal @(mostrarModal ? "show d-block" : "")"
+     style="background-color:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5>@(editando ? "Editar Ingrediente" : "Nuevo Ingrediente")</h5>
+                <button class="btn-close" @onclick="CerrarModal"></button>
+            </div>
+
+            <div class="modal-body">
+                <EditForm Model="formulario" OnValidSubmit="Guardar">
+                    <DataAnnotationsValidator />
+
+                    <div class="mb-3">
+                        <label>Nombre</label>
+                        <InputText class="form-control" @bind-Value="formulario.Name" />
+                        <ValidationMessage For="@(() => formulario.Name)" />
+                    </div>
+
+                    <div class="mb-3">
+                        <label>Tipo de Ingrediente</label>
+
+                        <div class="input-group">
+                            <input class="form-control"
+                                   readonly
+                                   value="@tipoSeleccionadoNombre" />
+
+                            <button class="btn btn-outline-secondary"
+                                    type="button"
+                                    @onclick="AbrirBuscarTipo">
+                                Buscar
+                            </button>
+                        </div>
+
+                        <ValidationMessage For="@(() => formulario.Type)" />
+                    </div>
+
+                    <div class="text-end">
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary"
+                                @onclick="CerrarModal">
+                            Cancelar
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL BUSCAR TIPO -->
+<div class="modal @(mostrarBuscarTipo ? "show d-block" : "")"
+     style="background-color:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5>Seleccionar Tipo de Ingrediente</h5>
+                <button class="btn-close" @onclick="CerrarBuscarTipo"></button>
+            </div>
+
+            <div class="modal-body">
+
+                <input class="form-control mb-3"
+                       placeholder="Buscar tipo..."
+                       @bind="filtroTipo"
+                       @bind:event="oninput" />
+
+                @if (tipos == null)
+                {
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary"></div>
+                        <p class="mt-2 mb-0">Cargando tipos...</p>
+                    </div>
+                }
+                else
+                {
+                    var filtrados = tipos
+                        .Where(t => string.IsNullOrWhiteSpace(filtroTipo)
+                            || t.Name.Contains(filtroTipo,
+                                StringComparison.OrdinalIgnoreCase))
+                        .ToList();
+
+                    if (!filtrados.Any())
+                    {
+                        <div class="alert alert-info">
+                            No se encontraron resultados.
+                        </div>
+                    }
+                    else
+                    {
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var t in filtrados)
+                                {
+                                    <tr style="cursor:pointer"
+                                        @onclick="() => SeleccionarTipo(t)">
+                                        <td>@t.Name</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    }
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL CONFIRMAR -->
+<div class="modal @(mostrarConfirmacion ? "show d-block" : "")"
+     style="background-color:rgba(0,0,0,.5)">
+    <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center">
+                ¿Eliminar <strong>@itemAEliminar?.Name</strong>?
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button class="btn btn-danger" @onclick="EliminarConfirmado">Eliminar</button>
+                <button class="btn btn-secondary" @onclick="CerrarConfirmacion">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<IngredienteDTO>? lista;
+    private List<TipoIngredienteDTO>? tipos;
+
+    private IngredienteCreateDTO formulario = new();
+    private bool mostrarModal, mostrarConfirmacion, editando;
+    private bool mostrarBuscarTipo;
+    private int editId;
+    private IngredienteDTO? itemAEliminar;
+
+    private string filtroTipo = string.Empty;
+    private string tipoSeleccionadoNombre = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var rol = await AuthService.GetRoleAsync();
+        if (rol != "Chef")
+        {
+            Navigation.NavigateTo("/home");
+            return;
+        }
+
+        tipos = await TipoServicio.GetAllAsync();
+        await Cargar();
+    }
+
+    private async Task Cargar()
+    {
+        lista = await Servicio.GetAllAsync();
+    }
+
+    private void AbrirCrear()
+    {
+        formulario = new();
+        tipoSeleccionadoNombre = string.Empty;
+        editando = false;
+        mostrarModal = true;
+    }
+
+    private void AbrirEditar(IngredienteDTO item)
+    {
+        editando = true;
+        editId = item.Id;
+        formulario = new()
+        {
+            Name = item.Name,
+            Type = item.Type
+        };
+
+        tipoSeleccionadoNombre = item.TipoNombre;
+        mostrarModal = true;
+    }
+
+    private async Task Guardar()
+    {
+        if (editando)
+            await Servicio.UpdateAsync(editId, formulario);
+        else
+            await Servicio.CreateAsync(formulario);
+
+        mostrarModal = false;
+        await Cargar();
+    }
+
+    private void AbrirConfirmacion(IngredienteDTO item)
+    {
+        itemAEliminar = item;
+        mostrarConfirmacion = true;
+    }
+
+    private async Task EliminarConfirmado()
+    {
+        if (itemAEliminar != null)
+            await Servicio.DeleteAsync(itemAEliminar.Id);
+
+        mostrarConfirmacion = false;
+        await Cargar();
+    }
+
+    private void AbrirBuscarTipo()
+    {
+        filtroTipo = string.Empty;
+        mostrarBuscarTipo = true;
+    }
+
+    private void SeleccionarTipo(TipoIngredienteDTO tipo)
+    {
+        formulario.Type = tipo.Id;
+        tipoSeleccionadoNombre = tipo.Name;
+        mostrarBuscarTipo = false;
+    }
+
+    private void CerrarBuscarTipo()
+    {
+        mostrarBuscarTipo = false;
+    }
+
+    private void CerrarConfirmacion()
+    {
+        mostrarConfirmacion = false;
+        itemAEliminar = null;
+    }
+
+    private void CerrarModal()
+    {
+        mostrarModal = false;
+    }
+}
