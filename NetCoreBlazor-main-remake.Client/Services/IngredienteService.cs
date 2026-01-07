@@ -1,3 +1,4 @@
+//C:\Users\linob\Documents\NetCoreBlazor-main-remake\NetCoreBlazor-main-remake.Client\Services\IngredienteService.cs
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;

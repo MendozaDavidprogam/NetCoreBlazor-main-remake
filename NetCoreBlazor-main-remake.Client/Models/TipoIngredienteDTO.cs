@@ -1,4 +1,4 @@
-// NetCoreBlazor-main-remake./Models/TipoIngredienteDTO.cs
+// C:\Users\linob\Documents\NetCoreBlazor-main-remake\NetCoreBlazor-main-remake.Client\Models\TipoIngredienteDTO.cs
 namespace NetCoreBlazor_main_remake.Client.Models
 {
     public class TipoIngredienteDTO
