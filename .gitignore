@@ -23,8 +23,8 @@ node_modules/
 wwwroot/lib/
 
 # Publicaciones
-publish/
-*.publishsettings
+
+
 
 # Paquetes NuGet
 *.nupkg

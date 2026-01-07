@@ -1,0 +1,58 @@
+@page "/recetas"
+@using NetCoreBlazor_main_remake.Client.Services
+@using NetCoreBlazor_main_remake.Client.Models
+@inject RecetaService RecetaService
+
+<h3>Recetas</h3>
+
+<button class="btn btn-success" @onclick="AbrirCrear">
+    + Nueva Receta
+</button>
+
+@if (lista == null)
+{
+    <p>Cargando...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Personas</th>
+                <th>Nivel</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var r in lista)
+            {
+                <tr style="cursor:pointer" @onclick="() => AbrirEditar(r)">
+                    <td>@r.Name</td>
+                    <td>@r.QuantityPersons</td>
+                    <td>@r.Leven</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<RecetaDTO>? lista;
+
+    protected override async Task OnInitializedAsync()
+    {
+        lista = await RecetaService.GetAllAsync();
+    }
+
+    private void AbrirCrear()
+    {
+        // por ahora solo UI
+        Console.WriteLine("Abrir modal crear receta");
+    }
+
+    private void AbrirEditar(RecetaDTO receta)
+    {
+        // por ahora solo UI
+        Console.WriteLine($"Editar receta {receta.Id}");
+    }
+}

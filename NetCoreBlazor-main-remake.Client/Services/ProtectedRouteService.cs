@@ -1,3 +1,4 @@
+// NetCoreBlazor-main-remake.Client/Services/ProtectedRouteService.cs
 using Microsoft.AspNetCore.Components;
 
 namespace NetCoreBlazor_main_remake.Client.Services

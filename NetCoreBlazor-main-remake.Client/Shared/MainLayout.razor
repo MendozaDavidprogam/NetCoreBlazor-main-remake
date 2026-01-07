@@ -1,3 +1,4 @@
+<!--C:\Users\L\Documents\NetCoreBlazor-main-remake\NetCoreBlazor-main-remake.Client\Shared\MainLayout.razor  -->
 @inherits LayoutComponentBase
 @inject NetCoreBlazor_main_remake.Client.Services.AuthService AuthService
 @inject NavigationManager Navigation
@@ -5,32 +6,94 @@
 <div class="layout">
     <nav class="sidebar" style="@(!isLoggedIn ? "display:none" : "")">
         <h3>Panel Culinario</h3>
+
         <ul>
-            <li><NavLink href="/home" class="nav-link" activeclassname="active">Home</NavLink></li>
-            <li><NavLink href="/perfil" class="nav-link" activeclassname="active">Perfil</NavLink></li>
-            <li><NavLink href="/recetas" class="nav-link" activeclassname="active">Recetas</NavLink></li>
-            <li><NavLink href="/ingredientes" class="nav-link" activeclassname="active">Ingredientes</NavLink></li>
+            <li>
+                <NavLink href="/home" class="nav-link" activeclassname="active">
+                    Home
+                </NavLink>
+            </li>
+
+            <li>
+                <NavLink href="/perfil" class="nav-link" activeclassname="active">
+                    Perfil
+                </NavLink>
+            </li>
+
+            @if (rol == "Chef")
+            {
+                <li>
+                    <NavLink href="/recetas" class="nav-link" activeclassname="active">
+                        Recetas
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink href="/ingredientes" class="nav-link" activeclassname="active">
+                        Ingredientes
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink href="/pasos" class="nav-link" activeclassname="active">
+                        Pasos
+                    </NavLink>
+                </li>
+            }
+
+            @if (rol == "Administrador")
+            {
+                <li>
+                    <NavLink href="/tipo-ingredientes" class="nav-link" activeclassname="active">
+                        Tipo Ingredientes
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink href="/tipo-recetas" class="nav-link" activeclassname="active">
+                        Tipo Recetas
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink href="/unida-de-medicion" class="nav-link" activeclassname="active">
+                        Unidades De Medicion
+                    </NavLink>
+                </li>
+                <li>
+                    <NavLink href="/usuarios" class="nav-link" activeclassname="active">
+                        Usuarios Registrados
+                    </NavLink>
+                </li>
+            }
         </ul>
-        <button @onclick="Logout" class="logout-button">Cerrar sesión</button>
+
+        <button @onclick="Logout" class="logout-button">
+            Cerrar sesión
+        </button>
     </nav>
+
     <main class="content">
         @Body
     </main>
 </div>
 
 @code {
-    private bool isLoggedIn = false;
+    private bool isLoggedIn;
+    private string? rol;
 
     protected override async Task OnInitializedAsync()
     {
-        isLoggedIn = await AuthService.IsLoggedInAsync();
+        await LoadAuthState();
         AuthService.OnChange += AuthStateChanged;
     }
 
     private async Task AuthStateChanged()
     {
-        isLoggedIn = await AuthService.IsLoggedInAsync();
+        await LoadAuthState();
         await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task LoadAuthState()
+    {
+        isLoggedIn = await AuthService.IsLoggedInAsync();
+        rol = isLoggedIn ? await AuthService.GetRoleAsync() : null;
     }
 
     private async Task Logout()
