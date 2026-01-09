@@ -1,21 +1,23 @@
 @inherits LayoutComponentBase
 @inject NetCoreBlazor_main_remake.Client.Services.AuthService AuthService
 @inject NavigationManager Navigation
+@inject NetCoreBlazor_main_remake.Client.Services.ThemeService ThemeService
+@inject NetCoreBlazor_main_remake.Client.Services.LanguageService LanguageService
 
 <div class="layout">
     <nav class="sidebar" style="@(!isLoggedIn ? "display:none" : "")">
-        <h3>Panel Culinario</h3>
+        <h3>@T("panel")</h3>
 
         <ul>
             <li>
                 <NavLink href="/home" class="nav-link" activeclassname="active">
-                    Home
+                    @T("home")
                 </NavLink>
             </li>
 
             <li>
                 <NavLink href="/perfil" class="nav-link" activeclassname="active">
-                    Perfil
+                    @T("perfil")
                 </NavLink>
             </li>
 
@@ -23,17 +25,17 @@
             {
                 <li>
                     <NavLink href="/recetas" class="nav-link" activeclassname="active">
-                        Recetas
+                        @T("recetas")
                     </NavLink>
                 </li>
                 <li>
                     <NavLink href="/ingredientes" class="nav-link" activeclassname="active">
-                        Ingredientes
+                        @T("ingredientes")
                     </NavLink>
                 </li>
                 <li>
                     <NavLink href="/pasos" class="nav-link" activeclassname="active">
-                        Pasos
+                        @T("pasos")
                     </NavLink>
                 </li>
             }
@@ -42,29 +44,39 @@
             {
                 <li>
                     <NavLink href="/tipo-ingredientes" class="nav-link" activeclassname="active">
-                        Tipo Ingredientes
+                        @T("tipoIngredientes")
                     </NavLink>
                 </li>
                 <li>
                     <NavLink href="/tipo-recetas" class="nav-link" activeclassname="active">
-                        Tipo Recetas
+                        @T("tipoRecetas")
                     </NavLink>
                 </li>
                 <li>
                     <NavLink href="/unida-de-medicion" class="nav-link" activeclassname="active">
-                        Unidades De Medicion
+                        @T("unidades")
                     </NavLink>
                 </li>
                 <li>
                     <NavLink href="/usuarios" class="nav-link" activeclassname="active">
-                        Usuarios Registrados
+                        @T("usuarios")
                     </NavLink>
                 </li>
             }
         </ul>
 
+        <button class="theme-button" @onclick="CambiarTema">
+            @(ThemeService.CurrentTheme == "light"
+                ? "🌙 " + T("modoOscuro")
+                : "☀️ " + T("modoClaro"))
+        </button>
+
+        <button class="theme-button" @onclick="CambiarIdioma">
+            @(LanguageService.CurrentLanguage == "es" ? "EN" : "ES")
+        </button>
+
         <button @onclick="Logout" class="logout-button">
-            Cerrar sesión
+            @T("cerrarSesion")
         </button>
     </nav>
 
@@ -79,9 +91,18 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await ThemeService.InitializeAsync();
+        await LanguageService.InitializeAsync();
+
         await LoadAuthState();
+
         AuthService.OnChange += AuthStateChanged;
+        ThemeService.OnChange += StateHasChanged;
+        LanguageService.OnChange += StateHasChanged;
     }
+
+    private string T(string key)
+        => LanguageService.Translate(key);
 
     private async Task AuthStateChanged()
     {
@@ -95,6 +116,16 @@
         rol = isLoggedIn ? await AuthService.GetRoleAsync() : null;
     }
 
+    private async Task CambiarTema()
+    {
+        await ThemeService.ToggleThemeAsync();
+    }
+
+    private async Task CambiarIdioma()
+    {
+        await LanguageService.ToggleLanguageAsync();
+    }
+
     private async Task Logout()
     {
         await AuthService.LogoutAsync();
@@ -104,5 +135,7 @@
     public void Dispose()
     {
         AuthService.OnChange -= AuthStateChanged;
+        ThemeService.OnChange -= StateHasChanged;
+        LanguageService.OnChange -= StateHasChanged;
     }
 }

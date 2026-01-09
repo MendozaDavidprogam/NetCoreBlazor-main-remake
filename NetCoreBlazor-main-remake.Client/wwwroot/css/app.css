@@ -1,4 +1,6 @@
-
+/* =========================
+   BASE STYLES
+========================= */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
@@ -36,7 +38,6 @@ textarea:focus,
     color: #212529 !important;
     -webkit-text-fill-color: #212529 !important;
     caret-color: #212529;
-    opacity: 1;
 }
 
 /* Placeholder */
@@ -45,7 +46,6 @@ textarea::placeholder,
 .form-control::placeholder {
     color: #6c757d;
 }
-
 
 button {
     padding: 10px;
@@ -60,7 +60,6 @@ button:hover {
     background-color: #0b5ed7;
 }
 
-/* Bootstrap */
 .btn {
     border-radius: 6px;
 }
@@ -83,7 +82,6 @@ button:hover {
     display: block;
     color: #212529;
 }
-
 
 .layout {
     display: flex;
@@ -122,8 +120,10 @@ button:hover {
     padding: 30px;
     overflow-y: auto;
     background-color: #ffffff;
+    color: #212529;
 }
 
+/* Botón logout (base) */
 .logout-button {
     margin-top: 20px;
     padding: 10px;
@@ -139,27 +139,18 @@ button:hover {
     background-color: #bb2d3b;
 }
 
-
+/* =========================
+   MODALES
+========================= */
 .modal {
     z-index: 1055;
 }
-
-
-.modal:not(.fade):not(.show) {
-    padding: 10px;
-    background-color: #dc3545;
-    color: #ffffff;
-    border-radius: 6px;
-    text-align: center;
-}
-
 
 .modal-content {
     background-color: #ffffff;
     color: #212529;
     border-radius: 0.5rem;
     box-shadow: 0 5px 15px rgba(0,0,0,0.3);
-    opacity: 1;
 }
 
 .modal-title {
@@ -168,32 +159,153 @@ button:hover {
 }
 
 .modal-body,
-.modal-body *,
-.modal-header *,
-.modal-footer * {
+.modal-header,
+.modal-footer {
     color: #212529;
-    opacity: 1;
 }
-
 
 .modal-content .form-control {
     color: #212529;
     background-color: #ffffff;
 }
 
+/* =========================
+   THEMES
+========================= */
 
-.modal-header .btn-close {
-    filter: none;
-}
-
-
-.alert {
-    margin-bottom: 15px;
+/* LIGHT THEME */
+body.light-theme {
+    background-color: #f5f5f5;
     color: #212529;
 }
 
-.spinner-border {
-    width: 1rem;
-    height: 1rem;
-    border-width: 0.15em;
+/* =========================
+   DARK THEME (FINAL)
+========================= */
+body.dark-theme {
+    background-color: #121212;
+    color: #eaeaea;
+}
+
+body.dark-theme .content {
+    background-color: #1e1e1e;
+    color: #eaeaea;
+}
+
+body.dark-theme .sidebar {
+    background-color: #1a1a1a;
+}
+
+/* Textos descriptivos */
+body.dark-theme p,
+body.dark-theme small,
+body.dark-theme span,
+body.dark-theme label,
+body.dark-theme .text-muted,
+body.dark-theme .page-description {
+    color: #cfcfcf !important;
+}
+
+/* Títulos */
+body.dark-theme h1,
+body.dark-theme h2,
+body.dark-theme h3,
+body.dark-theme h4,
+body.dark-theme h5 {
+    color: #ffffff;
+}
+
+/* =========================
+   INPUTS DARK (ESCRITURA BLANCA)
+========================= */
+body.dark-theme input,
+body.dark-theme textarea,
+body.dark-theme .form-control {
+    background-color: #2a2a2a;
+    color: #ffffff !important;
+    -webkit-text-fill-color: #ffffff !important;
+    caret-color: #ffffff;
+    border-color: #444;
+}
+
+/* Autofill Chrome */
+body.dark-theme input:-webkit-autofill,
+body.dark-theme textarea:-webkit-autofill,
+body.dark-theme select:-webkit-autofill {
+    -webkit-text-fill-color: #ffffff !important;
+    box-shadow: 0 0 0px 1000px #2a2a2a inset;
+    caret-color: #ffffff;
+}
+
+body.dark-theme input::placeholder,
+body.dark-theme textarea::placeholder {
+    color: #b0b0b0;
+}
+
+/* =========================
+   BOTONES DARK (COLORES CORRECTOS)
+========================= */
+
+/* Primarios */
+body.dark-theme .btn-primary {
+    background-color: #0d6efd;
+    color: #ffffff;
+}
+
+/* Agregar / Guardar */
+body.dark-theme .btn-success {
+    background-color: #198754;
+    color: #ffffff;
+}
+
+body.dark-theme .btn-success:hover {
+    background-color: #157347;
+}
+
+/* Eliminar */
+body.dark-theme .btn-danger {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+body.dark-theme .btn-danger:hover {
+    background-color: #bb2d3b;
+}
+
+/* Logout */
+body.dark-theme .logout-button {
+    background-color: #dc3545;
+    color: #ffffff;
+}
+
+body.dark-theme .logout-button:hover {
+    background-color: #bb2d3b;
+}
+
+/* Sidebar links */
+body.dark-theme .sidebar ul li a {
+    color: #eaeaea;
+}
+
+/* =========================
+   MODALES DARK
+========================= */
+body.dark-theme .modal-content {
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+}
+
+body.dark-theme .modal-title {
+    color: #ffffff !important;
+}
+
+body.dark-theme .modal-body,
+body.dark-theme .modal-header,
+body.dark-theme .modal-footer {
+    color: #eaeaea;
+}
+
+body.dark-theme .modal-content .form-control {
+    background-color: #2a2a2a;
+    color: #ffffff !important;
 }

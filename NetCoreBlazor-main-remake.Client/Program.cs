@@ -25,6 +25,9 @@ builder.Services.AddScoped<UsuarioAdminService>();
 builder.Services.AddScoped<UnidadMedicionService>();
 builder.Services.AddScoped<PasoService>();
 builder.Services.AddScoped<IngredienteService>();
+builder.Services.AddScoped<ThemeService>();
+builder.Services.AddScoped<LanguageService>();
+
 
 
 
